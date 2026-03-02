@@ -82,6 +82,7 @@ See `docs/architecture.md` for details.
 ### 4. Claude Isn't a Linter
 
 Never use CLAUDE.md for code style enforcement. Use:
+
 - Biome, ESLint, Prettier
 - Pre-commit hooks
 - Separate rules files
@@ -98,6 +99,7 @@ cat README.md | head -50  # Existing docs
 ```
 
 Extract:
+
 - **WHAT**: From `package.json`, directory structure
 - **WHY**: From README.md description
 - **HOW**: From `package.json` scripts
