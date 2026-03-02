@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "description": "Your personal AI digital worker / AI clone powered by Claude Code",
   "scripts": {
-    "install": "./scripts/install.sh"
+    "install": "./scripts/install.sh",
+    "lint": "pre-commit run --all-files",
+    "lint:shell": "shellcheck hooks/*.sh scripts/*.sh",
+    "lint:markdown": "npx markdownlint-cli2 '**/*.md'",
+    "lint:format": "shfmt -d hooks/*.sh scripts/*.sh",
+    "test": "bats tests/hooks.bats"
   }
 }
