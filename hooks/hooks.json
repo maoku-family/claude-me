@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${HOME}/Repos/claude-me/hooks/load-project-context.sh"
+            "command": "${HOME}/Repos/claude-me/scripts/hooks/load-project-context.sh"
           }
         ]
       }

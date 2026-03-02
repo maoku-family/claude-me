@@ -3,7 +3,7 @@
 # Run with: bats tests/hooks.bats
 
 CLAUDE_ME_ROOT="${HOME}/Repos/claude-me"
-HOOK_SCRIPT="${CLAUDE_ME_ROOT}/hooks/load-project-context.sh"
+HOOK_SCRIPT="${CLAUDE_ME_ROOT}/scripts/hooks/load-project-context.sh"
 
 # =============================================================================
 # Test: Project Context Loading
