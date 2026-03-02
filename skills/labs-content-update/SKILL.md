@@ -255,8 +255,9 @@ gh workflow run "Publish: Production" --repo infinity-microsoft/labs-content \
 
 ### Staging Publishes To
 
-- **picasso-assets**: `staging.config.json` + media files
+- **picasso-assets**: `staging.config.json` + media files (使用 `--sync-media`)
 - Creates PR for review
+- **一次 Publish 同时更新内容和媒体**
 
 ### Production Publishes To
 
