@@ -136,11 +136,26 @@ When Studio's `src/schemas/labs-schemas.ts` changes:
 
 ## Add New Experiment
 
-1. **Create directory**: `content/original/{experiment-name}/`
-2. **Create metadata.json** using template below
-3. **Create landing-page.md** with experiment description
+### Step-by-Step: Ask User for Each Field
+
+**MUST ask user these questions in order:**
+
+1. **Experiment name?** (e.g., "Copilot Vision")
+2. **Alias?** (URL slug, e.g., "copilot-vision")
+3. **Type?** FEATURE or PROJECT
+4. **Status?** UPCOMING, LIVE, GRADUATED, etc.
+5. **Short description?** (1-2 sentences)
+6. **Landing page content?** (can be placeholder initially)
+7. **Cover image URL?** (or will upload new image?)
+8. **Try Now button URL?** (external link or action)
+
+### After Collecting Info
+
+1. **Create directory**: `content/original/{alias}/`
+2. **Create metadata.json** using collected info
+3. **Create landing-page.md** with landing page content
 4. **Register in settings.json**:
-   - Add entry with unique `id` (increment from highest existing)
+   - Find highest existing `id`, increment by 1
    - Set `enabled: true`
 5. Run tests and update baselines
 
