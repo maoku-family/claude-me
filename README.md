@@ -62,8 +62,33 @@ Restart Claude Code.
 ### Prerequisites
 
 ```bash
-brew install bats-core   # Testing framework
+brew install bats-core shellcheck shfmt pre-commit
+pre-commit install
 ```
+
+### Linting
+
+```bash
+# Run all checks
+bun run lint
+
+# Individual checks
+bun run lint:shell      # ShellCheck
+bun run lint:markdown   # markdownlint
+bun run lint:format     # shfmt (check only)
+bun run test            # Bats tests
+```
+
+### Lint Tools
+
+| Tool | Config | Purpose |
+|------|--------|---------|
+| ShellCheck | `.shellcheckrc` | Shell static analysis (11 optional rules enabled) |
+| shfmt | `.editorconfig` | Shell formatting |
+| markdownlint | `.markdownlint.json` | Markdown linting (~46 rules enabled) |
+| pre-commit | `.pre-commit-config.yaml` | Git hooks (runs all checks on commit) |
+
+See [memory-bank/lint.md](memory-bank/lint.md) for detailed configuration.
 
 ### Testing
 
