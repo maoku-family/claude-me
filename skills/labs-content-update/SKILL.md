@@ -160,10 +160,27 @@ Edit `settings.json`:
 
 Covers are images or videos displayed on homepage and landing pages.
 
-### Steps
+### Media Upload Flow
 
-1. **Upload media to CDN first** - Media must be hosted at `https://copilot.microsoft.com/static/copilotlabs/`
-2. **Edit metadata.json** `covers` array:
+```text
+content/original/{exp}/*.jpg  →  content/dist/  →  picasso-assets  →  CDN
+```
+
+1. **Place media file** in `content/original/{experiment}/` directory
+2. **Run tests** - build-configs.js copies media to `content/generated/`
+3. **Merge to main** - release.js copies media to `content/dist/`
+4. **Publish Staging** - `--sync-media` flag syncs media to picasso-assets
+5. **After picasso-assets PR merges** - Media available at CDN URL
+
+### CDN URL Pattern
+
+```text
+https://copilot.microsoft.com/static/copilotlabs/{filename}
+```
+
+### Update metadata.json
+
+After media is on CDN, update the `covers` array:
 
 ```json
 "covers": [
@@ -195,6 +212,12 @@ Covers are images or videos displayed on homepage and landing pages.
 |----------|------------------|
 | `HOMEPAGE` | Labs homepage grid |
 | `LANDING_PAGE` | Experiment detail page |
+
+### Supported Formats
+
+| Images | Videos |
+|--------|--------|
+| .png, .jpg, .jpeg, .gif, .webp, .svg | .mp4, .webm, .mov |
 
 **Note**: One experiment can have multiple covers for different consumers and sizes.
 
