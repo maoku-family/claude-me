@@ -92,7 +92,9 @@ original/ → generated/ → dist/ → publish
 | 19 | Claude | **Tell user picasso-assets prod PR URL, remind to merge** |
 | 20 | Claude | **Watch picasso-assets PR until merged** |
 | 21 | Claude | **Watch picasso-assets workflow until complete** |
-| 22 | Claude | **Tell user: "Production published! Verify at <https://www.copilot.microsoft.com/labs>"** |
+| 22 | Claude | **Tell user studio PR URL, remind to merge** |
+| 23 | Claude | **Watch studio PR until merged** |
+| 24 | Claude | **Tell user: "Production published! Verify at <https://www.copilot.microsoft.com/labs>"** |
 
 ### Watch PR Merge Status
 
