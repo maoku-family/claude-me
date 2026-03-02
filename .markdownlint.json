@@ -27,7 +27,7 @@
   "MD030": true,
   "MD031": true,
   "MD032": true,
-  "MD033": false,
+  "MD033": { "allowed_elements": [] },
   "MD034": true,
   "MD035": { "style": "---" },
   "MD036": true,

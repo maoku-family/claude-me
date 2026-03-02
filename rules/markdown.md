@@ -107,7 +107,7 @@ Click [here](CLAUDE.md).
 
 - **NEVER use trailing spaces for line breaks**
 - Use blank lines for paragraph separation
-- Use `<br>` if you truly need a line break within a paragraph (rare)
+- **Do NOT use HTML tags** (MD033 enabled)
 
 ```markdown
 # Bad - trailing spaces (invisible, fragile)
@@ -117,10 +117,6 @@ This is line two.
 # Good - blank line
 This is line one.
 
-This is line two.
-
-# Acceptable - explicit HTML (rare cases)
-This is line one.<br>
 This is line two.
 ```
 
