@@ -50,7 +50,7 @@ https://github.com/mao-family/claude-me
 ├── tests/                   # Bats test files
 ├── memory-bank/             # Project knowledge
 │   ├── *.md                 # Architecture, stack, lint docs
-│   ├── references/          # External research (third-party projects)
+│   ├── research/            # External research (third-party projects)
 │   └── insights/            # Synthesized insights (from research)
 ├── workspace/
 │   ├── repos/{project}/     # Child project repositories

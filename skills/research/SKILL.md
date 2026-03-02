@@ -52,7 +52,7 @@ Each research agent should:
 3. Analyze strengths and weaknesses
 4. Identify takeaways relevant to claude-me
 
-Output each research doc to `memory-bank/references/{topic}.md`.
+Output each research doc to `memory-bank/research/{topic}.md`.
 
 **Research Document Template:**
 
@@ -86,7 +86,7 @@ Output each research doc to `memory-bank/references/{topic}.md`.
 {Specific, actionable insights for our project}
 ```
 
-**Output Location:** Always write to `memory-bank/references/`, not to other directories.
+**Output Location:** Always write to `memory-bank/research/`, not to other directories.
 
 ### Step 3: Synthesize Insight
 
@@ -103,8 +103,8 @@ Output to `memory-bank/insights/{topic}.md`.
 
 **Sources:**
 
-- [Research: {Source 1}](../references/{source1}.md)
-- [Research: {Source 2}](../references/{source2}.md)
+- [Research: {Source 1}](../research/{source1}.md)
+- [Research: {Source 2}](../research/{source2}.md)
 
 ---
 
@@ -144,7 +144,7 @@ For each source:
   spawn agent:
     - Read source content (WebFetch, Read, MCP tools)
     - Apply research template
-    - Write to memory-bank/references/{source-name}.md
+    - Write to memory-bank/research/{source-name}.md
 ```
 
 All agents run in parallel. After all complete, synthesize into insight.
@@ -164,7 +164,7 @@ Before writing markdown, invoke the `writing-docs` skill to ensure proper format
 ```text
 User: 帮我研究一下 obra/superpowers 这个项目
 Claude: 好的，我来研究 obra/superpowers...
-→ Output: memory-bank/references/superpowers.md
+→ Output: memory-bank/research/superpowers.md
 → Output: memory-bank/insights/superpowers.md
 ```
 
@@ -178,9 +178,9 @@ User: 做个调研，关于 vibe coding 的最佳实践，看看这几个项目�
 
 Claude: 我会并行研究这三个来源...
 → 3 agents spawn in parallel
-→ Output: memory-bank/references/vibe-coding.md
-→ Output: memory-bank/references/everything-claude-code.md
-→ Output: memory-bank/references/openai-harness-engineering.md
+→ Output: memory-bank/research/vibe-coding.md
+→ Output: memory-bank/research/everything-claude-code.md
+→ Output: memory-bank/research/openai-harness-engineering.md
 → Output: memory-bank/insights/vibe-coding-workflow.md
 ```
 

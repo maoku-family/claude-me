@@ -40,7 +40,7 @@ docs/
 │   └── tech-debt-tracker.md
 ├── generated/
 ├── product-specs/
-├── references/
+├── research/
 ├── DESIGN.md
 ├── FRONTEND.md
 ├── PLANS.md

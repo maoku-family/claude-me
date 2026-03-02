@@ -4,12 +4,12 @@
 
 **Sources:**
 
-- [Research: EnzeD/vibe-coding](../references/vibe-coding.md)
-- [Research: obra/superpowers](../references/superpowers.md)
-- [Research: affaan-m/everything-claude-code](../references/everything-claude-code.md)
-- [Research: everything-claude-code Rules Collection](../references/everything-claude-code.md)
-- [Community Resources](../references/community-resources.md)
-- [OpenAI Harness Engineering](../references/openai-harness-engineering.md)
+- [Research: EnzeD/vibe-coding](../research/vibe-coding.md)
+- [Research: obra/superpowers](../research/superpowers.md)
+- [Research: affaan-m/everything-claude-code](../research/everything-claude-code.md)
+- [Research: everything-claude-code Rules Collection](../research/everything-claude-code.md)
+- [Community Resources](../research/community-resources.md)
+- [OpenAI Harness Engineering](../research/openai-harness-engineering.md)
 
 ---
 
