@@ -140,6 +140,43 @@ digraph content_update {
 }
 ```
 
+## Repositories and Workflows
+
+### Repositories
+
+| Repo | Purpose |
+|------|---------|
+| `infinity-microsoft/labs-content` | Content source |
+| `infinity-microsoft/picasso-assets` | CDN assets |
+| `infinity-microsoft/studio` | Frontend (schema source + production target) |
+
+### labs-content Workflows
+
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `Release` | Auto on push to main | Creates release branch with dist/ |
+| `Publish: Staging` | Manual | Syncs to picasso-assets staging |
+| `Publish: Production` | Manual | Syncs to picasso-assets + studio prod |
+| `Integration Tests` | PR / push to main | Validates config builds |
+
+### picasso-assets Workflows
+
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `Detect files to upload` | PR merge | Uploads files to CDN |
+
+### Watching Workflows
+
+```bash
+# labs-content workflows
+gh run list --repo infinity-microsoft/labs-content --workflow "Release" --limit 1
+gh run list --repo infinity-microsoft/labs-content --workflow "Publish: Staging" --limit 1
+gh run list --repo infinity-microsoft/labs-content --workflow "Publish: Production" --limit 1
+
+# picasso-assets workflows
+gh run list --repo infinity-microsoft/picasso-assets --workflow "Detect files to upload" --limit 1
+```
+
 ## Quick Reference
 
 ### File Locations
