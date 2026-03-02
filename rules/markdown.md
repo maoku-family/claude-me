@@ -8,23 +8,76 @@
 - Comments in code blocks may be in English only
 - Variable names and identifiers should use English
 
-## File Structure
+## Headings
 
-- Use ATX-style headers (`#`, `##`, `###`)
+**Use ATX-style headers (`#`, `##`, `###`)**
+
 - One blank line before and after headers
-- One blank line before and after code blocks
-- One blank line before and after lists
+- Never use bold text as headings
+
+```markdown
+# Good
+### Section Name
+
+Content here
+
+# Bad
+**Section Name**
+
+Content here
+```
+
+**Maintain heading hierarchy (no skipping levels):**
+
+```markdown
+# Good
+## Section
+### Subsection
+#### Detail
+
+# Bad
+## Section
+#### Detail (skipped h3)
+```
+
+**Structure guidelines:**
+
+- Use `##` for main sections
+- Use `###` for subsections
+- Use `####` sparingly for deep nesting
+- Prefer flat structure over deep nesting
+
+## Code Blocks
+
+**ALWAYS specify language for code blocks:**
+
+```bash
+# Good
+echo "hello"
+```
+
+```text
+# Good for plain text/output
+Some output here
+```
+
+NOT:
+
+<!-- markdownlint-disable MD040 -->
+```
+# Bad - no language specified
+echo "hello"
+```
+<!-- markdownlint-enable MD040 -->
+
+**Common language specifiers:** `bash`, `text`, `yaml`, `json`, `markdown`
 
 ## Formatting
 
 - Use `**bold**` for emphasis
-- Use `\`code\`` for inline code
-- Use fenced code blocks with language specifier:
-
-  ```bash
-  # Good
-  echo "Hello"
-  ```
+- Use `` `code` `` for inline code
+- One blank line before and after code blocks
+- One blank line before and after lists
 
 ## Tables
 
@@ -75,6 +128,15 @@ This is line two.
 
 - No strict line length limit (MD013 disabled)
 - Break long lines at natural points for readability
+
+## Quick Reference
+
+| Element | Format |
+|---------|--------|
+| Code block | ` ```bash ` or ` ```text ` |
+| Section heading | `### Name` (NOT `**Name**`) |
+| Hierarchy | No skipping levels (h2 → h3 → h4) |
+| Line break | Blank line (NOT trailing spaces) |
 
 ## Enforcement
 
