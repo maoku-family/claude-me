@@ -76,6 +76,8 @@ Shell script formatter. Configuration in `.editorconfig`:
 
 **Pre-commit args**: `-i 2 -ci -sr -bn -w`
 
+For detailed shell style guidance, see [rules/shell.md](../rules/shell.md).
+
 ## Markdown Checks
 
 ### markdownlint
@@ -150,3 +152,11 @@ bun run lint:markdown   # markdownlint
 bun run lint:format     # shfmt (diff mode)
 bun run test            # Bats tests
 ```
+
+## Related Documentation
+
+| Document | Content |
+|----------|---------|
+| [rules/shell.md](../rules/shell.md) | Shell script style guide |
+| [rules/markdown.md](../rules/markdown.md) | Markdown style guide |
+| [rules/lint.md](../rules/lint.md) | Rules for using lint tools |

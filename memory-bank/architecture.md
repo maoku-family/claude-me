@@ -11,6 +11,7 @@ claude-me is a personal AI digital worker / AI clone powered by Claude Code. It 
 3. **Repository = Single Source of Truth** - Everything lives in the repo
 4. **Test First, Always** - TDD by default
 5. **Encode Taste into Tooling** - Codify preferences into skills, agents, hooks
+6. **Progressive Disclosure** - Docs link to details, never duplicate
 
 ## Directory Structure
 
@@ -24,7 +25,6 @@ https://github.com/mao-family/claude-me
 ├── agents/                  # Specialized sub-agents
 ├── hooks/                   # Automation hooks
 ├── rules/                   # Coding standards
-├── references/              # External knowledge docs
 ├── scripts/                 # Installation and utility scripts
 ├── memory-bank/             # claude-me project knowledge
 ├── workspace/
@@ -99,6 +99,9 @@ For projects under `workspace/repos/`:
 
 Child projects are git submodules. Their knowledge files live in `workspace/memory-bank/` to keep repos clean.
 
-## Code Quality
+## Related Documentation
 
-See [lint.md](lint.md) for details on linting, formatting, and testing configuration.
+| Document | Content |
+|----------|---------|
+| [stack.md](stack.md) | Technology stack overview |
+| [lint.md](lint.md) | Detailed linting configuration |

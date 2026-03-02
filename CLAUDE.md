@@ -9,13 +9,17 @@ Personal AI digital worker / AI clone powered by Claude Code.
 3. **Repository = Single Source of Truth** - Everything lives in the repo
 4. **Test First, Always** - TDD by default
 5. **Encode Taste into Tooling** - Codify preferences into skills, agents, hooks
+6. **Progressive Disclosure** - Docs link to details, never duplicate (see [rules/documentation.md](rules/documentation.md))
 
 ## Knowledge Locations
 
 ### claude-me
 
 - `CLAUDE.md` - Global instructions (auto-loaded by Claude Code)
-- `memory-bank/` - claude-me project knowledge
+- `memory-bank/` - Project knowledge:
+  - [architecture.md](memory-bank/architecture.md) - Project structure
+  - [stack.md](memory-bank/stack.md) - Technology stack
+  - [lint.md](memory-bank/lint.md) - Linting configuration
 
 ### Child Projects (workspace/repos/* only)
 
@@ -40,7 +44,6 @@ https://github.com/mao-family/claude-me
 ├── agents/                  # Specialized sub-agents
 ├── hooks/                   # Automation hooks
 ├── rules/                   # Coding standards
-├── references/              # External knowledge docs
 ├── scripts/                 # Installation and utility scripts
 ├── memory-bank/             # claude-me project knowledge
 ├── workspace/
