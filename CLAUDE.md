@@ -40,12 +40,15 @@ Personal AI digital worker / AI clone powered by Claude Code.
 https://github.com/mao-family/claude-me
 ~/Repos/claude-me/
 ├── .claude-plugin/          # Plugin metadata
-├── skills/                  # Workflow guides
+├── skills/                  # Workflow guides (on-demand loading)
 ├── agents/                  # Specialized sub-agents
-├── hooks/                   # Automation hooks
-├── rules/                   # Coding standards
-├── scripts/                 # Installation and utility scripts
-├── memory-bank/             # claude-me project knowledge
+├── hooks/                   # Hook configuration (hooks.json)
+├── rules/                   # Coding standards (auto-loaded)
+├── scripts/                 # Utility scripts
+│   ├── hooks/               # Hook implementation scripts
+│   └── lint/                # Lint helper scripts
+├── tests/                   # Bats test files
+├── memory-bank/             # Project knowledge
 ├── workspace/
 │   ├── repos/{project}/     # Child project repositories
 │   └── memory-bank/{project}/ # Child project knowledge

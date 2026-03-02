@@ -21,12 +21,15 @@ claude-me is a personal AI digital worker / AI clone powered by Claude Code. It 
 https://github.com/mao-family/claude-me
 ~/Repos/claude-me/
 ├── .claude-plugin/          # Plugin metadata
-├── skills/                  # Workflow guides
+├── skills/                  # Workflow guides (on-demand loading)
 ├── agents/                  # Specialized sub-agents
-├── hooks/                   # Automation hooks
-├── rules/                   # Coding standards
-├── scripts/                 # Installation and utility scripts
-├── memory-bank/             # claude-me project knowledge
+├── hooks/                   # Hook configuration (hooks.json)
+├── rules/                   # Coding standards (auto-loaded)
+├── scripts/                 # Utility scripts
+│   ├── hooks/               # Hook implementation scripts
+│   └── lint/                # Lint helper scripts
+├── tests/                   # Bats test files
+├── memory-bank/             # Project knowledge
 ├── workspace/
 │   ├── repos/{project}/     # Child project repositories
 │   └── memory-bank/{project}/ # Child project knowledge
@@ -56,13 +59,17 @@ The installation script creates symlinks from `~/.claude/` to the repository:
 
 ### Hooks
 
-Located in `hooks/`, automation scripts that integrate with Claude Code:
+Located in `hooks/` (configuration) and `scripts/hooks/` (implementation):
 
-- **load-project-context.sh** - Automatically loads project-specific CLAUDE.md when working in child projects
+- **hooks.json** - Hook configuration for Claude Code
+- **load-project-context.sh** - Loads project-specific CLAUDE.md
 
 ### Skills
 
-Located in `skills/`, workflow guides that define reusable patterns and procedures for Claude Code to follow.
+Located in `skills/`, workflow guides loaded on-demand:
+
+- **writing-claude-md** - Guide for creating CLAUDE.md files
+- **writing-docs** - Markdown style and progressive disclosure rules
 
 ### Agents
 
@@ -70,15 +77,24 @@ Located in `agents/`, specialized sub-agents for specific tasks or domains.
 
 ### Rules
 
-Located in `rules/`, coding standards and style guides:
+Located in `rules/`, coding standards auto-loaded every session:
 
-- **markdown.md** - Markdown formatting rules
+- **shell.md** - Shell script style guide
+- **lint.md** - Lint tool usage rules
 
 ### Scripts
 
-Located in `scripts/`, utility and installation scripts:
+Located in `scripts/`:
 
 - **install.sh** - Creates symlinks and sets up the plugin
+- **hooks/** - Hook implementation scripts
+- **lint/** - Lint helper scripts (check-lint-disables.sh)
+
+### Tests
+
+Located in `tests/`, Bats test files:
+
+- **hooks.bats** - Tests for hook functionality
 
 ## Plugin System
 
