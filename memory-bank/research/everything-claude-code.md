@@ -1,98 +1,40 @@
-# Research: affaan-m/everything-claude-code
+# Research: everything-claude-code
 
-**Repository:** [affaan-m/everything-claude-code](https://github.com/affaan-m/everything-claude-code)
-**Stars:** 53,900+ | **Author:** Affaan Mustafa (Anthropic hackathon winner)
-**Version:** 1.7.0 | **License:** MIT
-**Research Date:** February 27, 2026
+**Date:** 2026-02-27
+
+**Source:** <https://github.com/affaan-m/everything-claude-code>
+
+---
 
 ## Overview
 
-Production-ready Claude Code configuration collection with agents, skills, hooks, commands, and rules. Evolved over 10+ months of intensive daily use.
+Production-ready Claude Code configuration collection by Affaan Mustafa (Anthropic hackathon winner). 53,900+ stars, MIT license. Evolved over 10+ months of intensive daily use with 30 contributors, 14 agents, 56+ skills, 32+ commands.
 
-## Key Stats
+## Key Findings
 
-- 30 contributors
-- 6 programming languages (TypeScript, Python, Go, Java, C++, Swift)
-- 14 specialized agents
-- 56+ workflow skills
-- 32+ slash commands
-- 992+ tests
+- **14 specialized agents** with clear purposes: planner, architect, tdd-guide, code-reviewer, security-reviewer, build-error-resolver, e2e-runner
+- **Model selection strategy**: Haiku 4.5 (lightweight agents), Sonnet 4.6 (main development), Opus 4.5 (complex decisions)
+- **Rules organized by scope**: `rules/common/` (language-agnostic) + language-specific subdirs
+- **Hook stages**: PreToolUse (safety), PostToolUse (formatting), SessionStart (context), SessionEnd (persistence)
+- **TDD workflow**: RED → GREEN → REFACTOR with 80% coverage target
 
-## Core Components
+## Strengths
 
-### Agents (14 Specialized Subagents)
+- Comprehensive agent specialization with clear tool permissions
+- Well-structured rules hierarchy (common → language-specific)
+- Hook-driven automation for consistent code quality
+- Battle-tested over months of real-world use
 
-| Agent | Purpose | Model |
-|-------|---------|-------|
-| `planner` | Feature implementation planning | Opus |
-| `architect` | System design decisions | Opus |
-| `tdd-guide` | Test-driven development | Opus |
-| `code-reviewer` | Quality and security review | Opus |
-| `security-reviewer` | Vulnerability analysis | Opus |
-| `build-error-resolver` | Build error resolution | Opus |
-| `e2e-runner` | Playwright E2E testing | Opus |
+## Weaknesses
 
-### Rules Structure
+- Large scope may be overkill for smaller projects
+- 6 programming languages create maintenance burden
+- Tight coupling to specific model versions
 
-```text
-rules/
-├── common/          # Language-agnostic
-│   ├── coding-style.md
-│   ├── git-workflow.md
-│   ├── testing.md
-│   ├── performance.md
-│   └── security.md
-├── typescript/
-├── python/
-├── golang/
-└── swift/
-```
+## Takeaways for claude-me
 
-### Key Rules
-
-| Rule | Purpose | Value |
-|------|---------|-------|
-| **coding-style.md** | Immutability, file organization | Critical |
-| **testing.md** | TDD, 80% coverage | Critical |
-| **security.md** | Pre-commit security checklist | Critical |
-| **agents.md** | Multi-agent orchestration | High |
-| **performance.md** | Model selection strategy | High |
-
-### Model Selection Strategy
-
-| Model | Use Case |
-|-------|----------|
-| **Haiku 4.5** | Lightweight agents, frequent invocation |
-| **Sonnet 4.6** | Main development, orchestration |
-| **Opus 4.5** | Complex architectural decisions |
-
-## Hooks
-
-| Stage | Hook | Purpose |
-|-------|------|---------|
-| PreToolUse | Block dev servers | Safety |
-| PostToolUse | Auto-format | Code quality |
-| SessionStart | Load context | Memory |
-| SessionEnd | Persist state | Continuity |
-
-## Key Takeaways for claude-me
-
-### Architectural Patterns
-
-1. **Agent Delegation** - Specialized agents with clear tool permissions
-2. **Skill-Based Knowledge** - Encode expertise as reusable skills
-3. **Hook-Driven Automation** - Pre/Post tool use for validation
-4. **Rules as Guardrails** - Always-follow rules for consistency
-
-### Workflow Patterns
-
-1. **TDD Workflow** - RED → GREEN → REFACTOR, 80% coverage
-2. **Planning Workflow** - Requirements → Architecture → Steps
-3. **Continuous Learning** - Auto-extract patterns from sessions
-
-### Implementation Recommendations
-
-1. Start with planner and code-reviewer agents
-2. Add TDD workflow and coding standards skills
-3. Implement session persistence hooks
-4. Customize for our stack
+1. **Start with planner and code-reviewer agents** - highest impact specialization
+2. **Implement session persistence hooks** - SessionStart/SessionEnd for memory
+3. **Use rules/common/ pattern** - language-agnostic rules with overrides
+4. **Model selection by task complexity** - not one-size-fits-all
+5. **Skill-based knowledge encoding** - reusable workflow expertise

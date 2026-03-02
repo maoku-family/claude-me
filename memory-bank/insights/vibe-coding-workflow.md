@@ -1,205 +1,81 @@
 # Insight: Vibe-Coding Workflow
 
-**Date:** February 27, 2026
+**Date:** 2026-02-27
 
 **Sources:**
 
 - [Research: EnzeD/vibe-coding](../research/vibe-coding.md)
 - [Research: obra/superpowers](../research/superpowers.md)
 - [Research: affaan-m/everything-claude-code](../research/everything-claude-code.md)
-- [Research: everything-claude-code Rules Collection](../research/everything-claude-code.md)
-- [Community Resources](../research/community-resources.md)
-- [OpenAI Harness Engineering](../research/openai-harness-engineering.md)
+- [Research: Community Resources](../research/community-resources.md)
+- [Research: OpenAI Harness Engineering](../research/openai-harness-engineering.md)
 
 ---
 
-## Core Principles
+## Summary
 
-| # | Principle |
-|---|-----------|
-| 1 | **Human Plans, AI Executes** |
-| 2 | **Design Before Code** |
-| 3 | **Repository = Single Source of Truth** |
-| 4 | **Test First, Always** |
-| 5 | **Encode Taste into Tooling** |
+Effective AI-assisted development ("vibe coding") requires shifting discipline from code to scaffolding. Research across multiple projects reveals a consistent pattern: human-driven design with AI execution, enforced through TDD, multi-agent orchestration, and layered gates (documents → hooks → agents → CI). The key insight from OpenAI—"discipline shows up more in scaffolding rather than the code"—validates claude-me's architecture of skills, hooks, and rules as the primary mechanism for quality control.
+
+## Key Findings
+
+| # | Finding |
+|---|---------|
+| 1 | Design-first enforcement via `<HARD-GATE>` patterns prevents premature coding |
+| 2 | TDD with 80% coverage minimum; violation = delete and restart (non-negotiable) |
+| 3 | 2-5 minute granular tasks enable independent subagent execution |
+| 4 | Two-stage review (spec review → code review) catches both "what" and "how" issues |
+| 5 | Memory-bank loading at session start ensures context continuity across sessions |
+| 6 | Hooks (PreToolUse, PostToolUse) provide automatic safety guards and formatting |
+| 7 | Anti-patterns ("too simple for design", "tests later") require explicit documentation |
+| 8 | Fresh context per task prevents state pollution between executions |
+
+## Implications for claude-me
+
+This research validates our core architecture. The five principles (Human Plans/AI Executes, Design Before Code, Repo=Truth, Test First, Encode Taste) align directly with community best practices. The scaffolding approach means our `skills/`, `hooks/`, and `rules/` directories are the primary quality control mechanisms—not verbal corrections or post-hoc reviews. When problems arise, the fix is a new rule or hook, not a conversation.
+
+## Recommendations
+
+| Priority | Recommendation | Rationale |
+|----------|----------------|-----------|
+| 🔴 HIGH | Implement `brainstorming` skill with `<HARD-GATE>` | Forces design-first; blocks coding before spec |
+| 🔴 HIGH | Implement `test-driven-development` skill | Enforces TDD workflow with delete-on-violation |
+| 🔴 HIGH | Implement `writing-plans` skill | Generates 2-5 min tasks for subagent execution |
+| 🔴 HIGH | Add PreToolUse hook for dangerous ops | Safety guard before destructive commands |
+| 🟡 MED | Implement `subagent-driven-development` skill | Independent context per task |
+| 🟡 MED | Add SessionStart hook for memory-bank loading | Automatic context restoration |
+| 🟡 MED | Create `code-reviewer` and `security-reviewer` agents | Specialized review with Opus model |
+| 🟢 LOW | Implement `using-git-worktrees` skill | Feature isolation for parallel work |
+| 🟢 LOW | Add PostToolUse hook for auto-formatting | Consistent code style without manual effort |
 
 ---
 
-## Workflow Architecture
+## Appendix: Workflow Architecture
 
 ```text
-┌─────────────────────────────────────────────────────────────────┐
-│                         WORKFLOW FLOW                            │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  ┌──────────┐    ┌──────────┐    ┌──────────┐                   │
-│  │INITIALIZE│───▶│BRAINSTORM│───▶│   PLAN   │                   │
-│  │          │    │          │    │          │                   │
-│  │ Hook:    │    │ Agent:   │    │ Agent:   │                   │
-│  │ Session  │    │ architect│    │ planner  │                   │
-│  │ Start    │    │          │    │          │                   │
-│  └──────────┘    └──────────┘    └──────────┘                   │
-│                        │               │                         │
-│                        ▼               ▼                         │
-│                  <HARD-GATE>     2-5 min tasks                   │
-│                                        │                         │
-│                                        ▼                         │
-│  ┌──────────┐    ┌──────────┐    ┌──────────┐                   │
-│  │  LEARN   │◀───│  COMMIT  │◀───│  REVIEW  │◀──┐               │
-│  │          │    │          │    │          │   │               │
-│  │ Hook:    │    │ Hook:    │    │ Agents:  │   │               │
-│  │ Session  │    │ PreTool  │    │ code-    │   │               │
-│  │ End      │    │ Use      │    │ reviewer │   │               │
-│  └──────────┘    └──────────┘    └──────────┘   │               │
-│                                        ▲        │               │
-│                                        │        │               │
-│                                  ┌──────────┐   │               │
-│                                  │ EXECUTE  │───┘               │
-│                                  │          │                   │
-│                                  │ Subagent │                   │
-│                                  │ + TDD    │                   │
-│                                  └──────────┘                   │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
+INITIALIZE → BRAINSTORM → PLAN → EXECUTE → REVIEW → COMMIT → LEARN
+   │            │           │        │         │        │        │
+   │         architect    planner   TDD    code-rev   hook    memory
+   │                                        security          bank
+   └─ SessionStart hook loads memory-bank
 ```
 
----
-
-## Component Adoption Recommendations
-
-### Skills (from superpowers + everything-claude-code)
-
-| Priority | Skill | Purpose |
-|----------|-------|---------|
-| 🔴 HIGH | `brainstorming` | Enforce design-first approach |
-| 🔴 HIGH | `test-driven-development` | TDD workflow enforcement |
-| 🔴 HIGH | `writing-plans` | Generate 2-5 minute granular tasks |
-| 🟡 MED | `subagent-driven-development` | Independent subagent per task |
-| 🟡 MED | `systematic-debugging` | Root cause > random fixes |
-| 🟢 LOW | `using-git-worktrees` | Feature isolation |
-
-### Rules (from everything-claude-code)
-
-| Priority | Rule | Purpose |
-|----------|------|---------|
-| 🔴 HIGH | `agents.md` | Multi-agent orchestration |
-| 🔴 HIGH | `coding-style.md` | Immutability, file organization |
-| 🔴 HIGH | `testing.md` | 80% coverage, TDD enforcement |
-| 🔴 HIGH | `security.md` | Pre-commit security checklist |
-| 🟡 MED | `development-workflow.md` | Plan → TDD → Review → Commit |
-
-### Hooks
-
-| Stage | Hook | Purpose |
-|-------|------|---------|
-| SessionStart | Load memory-bank | Restore context |
-| SessionEnd | Save progress | Persist state |
-| PreToolUse | Block dangerous ops | Safety guard |
-| PostToolUse | Auto-format | Code quality |
-
-### Agents (from everything-claude-code)
-
-| Agent | Purpose | Model |
-|-------|---------|-------|
-| `planner` | Plan implementation steps | Opus |
-| `architect` | System design decisions | Opus |
-| `tdd-guide` | TDD workflow guidance | Opus |
-| `code-reviewer` | Code quality review | Opus |
-| `security-reviewer` | Security vulnerability analysis | Opus |
-
----
-
-## TDD Workflow (Core)
-
-```text
-┌─────────┐     ┌─────────┐     ┌─────────┐
-│   RED   │────▶│  GREEN  │────▶│REFACTOR │
-│ Write   │     │ Implement│     │ Improve  │
-│ Test    │     │ Code     │     │ Code     │
-│ (Fail)  │     │ (Pass)   │     │ (Pass)   │
-└─────────┘     └─────────┘     └─────────┘
-     │                               │
-     └───────────── LOOP ────────────┘
-```
-
-**Hard Requirements:**
-
-- Minimum 80% test coverage
-- Write test before code; violation = delete and restart
-- Each step: write test → run → implement → run → commit
-
----
-
-## Two-Stage Review System
-
-| Stage | Focus | Gate |
-|-------|-------|------|
-| **Stage 1: Spec Review** | Does it match requirements? | Must pass before Stage 2 |
-| **Stage 2: Code Review** | Is it well-built? | Must pass before merge |
-
----
-
-## Anti-Patterns to Avoid
-
-| Thought | Reality |
-|---------|---------|
-| "This is too simple for design" | Simple things are exactly when you skip design |
-| "Let me just write the code first" | TDD violation - delete and restart |
-| "I'll add tests later" | You won't. Write them first. |
-| "The context is fine" | Fresh context per task prevents pollution |
-| "I know what to do" | Still read memory-bank for latest state |
-
----
-
-## Key Insight from OpenAI
-
-> **"Building software still demands discipline, but the discipline shows up more in the scaffolding rather than the code."**
-
-This is exactly what claude-me is building — the scaffolding (skills, hooks, MCP configs) that enables agents to work effectively.
-
----
-
-## Core Principles Implementation
-
-| Principle | Mechanism | Example |
-|-----------|-----------|---------|
-| **Human Plans, AI Executes** | `<HARD-GATE>`, design docs as prerequisites | Brainstorming skill forces clarifying dialog |
-| **Design Before Code** | GDD/PRD in memory-bank, architect agent | AI reads design before execution |
-| **Repository = Truth** | SessionStart loads memory-bank | Slack discussion not in repo = invisible |
-| **Test First, Always** | TDD skill, 80% coverage | Violation = delete and restart |
-| **Encode Taste into Tooling** | rules/, hooks/, linters | Found problem? Write a rule, not verbal correction |
-
----
-
-## Workflow Stages
+**Workflow Stages:**
 
 | Stage | Skill | Agent | Output |
 |-------|-------|-------|--------|
-| **0. INITIALIZE** | - | - | branch + feature memory |
-| **1. BRAINSTORM** | `brainstorming` | `architect` | design.md |
-| **2. PLAN** | `writing-plans` | `planner` | plan.md (2-5 min tasks) |
-| **3. EXECUTE** | `tdd` | `tdd-guide` | code |
-| **4. REVIEW** | `code-review` | `code-reviewer` | feedback |
-| **5. COMMIT** | - | - | commit |
-| **6. LEARN** | - | - | update memory-bank |
+| 0. INITIALIZE | - | - | branch + feature memory |
+| 1. BRAINSTORM | `brainstorming` | `architect` | design.md |
+| 2. PLAN | `writing-plans` | `planner` | plan.md (2-5 min tasks) |
+| 3. EXECUTE | `tdd` | `tdd-guide` | code |
+| 4. REVIEW | `code-review` | `code-reviewer` | feedback |
+| 5. COMMIT | - | - | commit |
+| 6. LEARN | - | - | update memory-bank |
 
----
-
-## Enforcement Layers
+**Enforcement Layers:**
 
 | Layer | Purpose | Mechanisms |
 |-------|---------|------------|
-| **Document** | Psychological | `<HARD-GATE>`, Checklist, Anti-Pattern Table |
-| **Hook** | Automatic interception | PreToolUse, PostToolUse, SessionStart |
-| **Agent** | Specialized review | code-reviewer, security-reviewer |
-| **CI/CD** | Final gates | Test coverage, Security scan |
-
----
-
-## Memory Bank Loading Strategy
-
-| Layer | When to Load | Content |
-|-------|--------------|---------|
-| `~/.claude/memory-bank/` | Every SessionStart | Global knowledge |
-| `workspace/memory-bank/{project}/CLAUDE.md` | When in project dir | Project entry |
-| `workspace/memory-bank/{project}/features/{feature}/` | On feature branch | Feature design, plan, progress |
+| Document | Psychological | `<HARD-GATE>`, checklists, anti-patterns |
+| Hook | Automatic interception | PreToolUse, PostToolUse, SessionStart |
+| Agent | Specialized review | code-reviewer, security-reviewer |
+| CI/CD | Final gates | Test coverage, security scan |

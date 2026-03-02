@@ -1,48 +1,41 @@
-# Community Resources: Claude Code Ecosystem
+# Research: Claude Code Community Resources
 
-**Research Date:** February 27, 2026
+**Date:** 2026-02-27
 
-A compilation of high-value community resources for vibe-coding, Claude Code skills, and AI-assisted development.
+**Source:** Community compilation (GitHub)
 
-## Top-Tier Projects
+---
 
-### Claude Code Skills & Workflows
+## Overview
 
-| Project | Stars | Description |
-|---------|-------|-------------|
-| [OthmanAdi/planning-with-files](https://github.com/OthmanAdi/planning-with-files) | 14,718 | Manus-style persistent markdown planning |
-| [VoltAgent/awesome-agent-skills](https://github.com/VoltAgent/awesome-agent-skills) | 8,502 | 380+ agent skills library |
-| [OneRedOak/claude-code-workflows](https://github.com/OneRedOak/claude-code-workflows) | 3,663 | Battle-tested workflows from AI-native startup |
-| [parcadei/Continuous-Claude-v3](https://github.com/parcadei/Continuous-Claude-v3) | 3,570 | Context management via ledgers and handoffs |
-| [disler/claude-code-hooks-mastery](https://github.com/disler/claude-code-hooks-mastery) | 3,161 | Comprehensive hooks guide |
+A curated compilation of high-value community resources for vibe-coding, Claude Code skills, and AI-assisted development workflows.
 
-### Vibe Coding Resources
+## Key Findings
 
-| Project | Stars | Description |
-|---------|-------|-------------|
-| [2025Emma/vibe-coding-cn](https://github.com/2025Emma/vibe-coding-cn) | 12,882 | Chinese vibe coding community |
-| [cloudflare/vibesdk](https://github.com/cloudflare/vibesdk) | 4,821 | Enterprise vibe coding platform |
-| [filipecalegario/awesome-vibe-coding](https://github.com/filipecalegario/awesome-vibe-coding) | 3,393 | Curated resource list |
-| [KhazP/vibe-coding-prompt-template](https://github.com/KhazP/vibe-coding-prompt-template) | 1,860 | PRD and Tech Design templates |
+- **Planning-with-files (14.7k★)** - Manus-style persistent markdown planning; most popular approach
+- **Awesome-agent-skills (8.5k★)** - 380+ reusable agent skills library
+- **Continuous-Claude-v3 (3.6k★)** - Context management via ledgers and handoffs
+- **Claude-code-hooks-mastery (3.2k★)** - Comprehensive hooks guide by disler
+- **Context-engineering-intro (12.6k★)** - Methodology for context engineering
+- **Vibe-coding-cn (12.9k★)** - Large Chinese vibe coding community
 
-### Infrastructure
+## Strengths
 
-| Project | Stars | Description |
-|---------|-------|-------------|
-| [steipete/claude-code-mcp](https://github.com/steipete/claude-code-mcp) | 1,140 | Claude Code as MCP server |
-| [disler/claude-code-hooks-multi-agent-observability](https://github.com/disler/claude-code-hooks-multi-agent-observability) | 1,202 | Real-time agent monitoring |
+- **Rich ecosystem** - Multiple mature approaches to AI-assisted development
+- **Battle-tested** - claude-code-workflows comes from AI-native startup production use
+- **Infrastructure tools** - MCP server integration, multi-agent observability available
+- **Enterprise options** - Cloudflare vibesdk provides enterprise-grade platform
 
-### Agentic Platforms
+## Weaknesses
 
-| Project | Stars | Description |
-|---------|-------|-------------|
-| [Aider-AI/aider](https://github.com/Aider-AI/aider) | 41,012 | AI pair programming in terminal |
-| [Fission-AI/OpenSpec](https://github.com/Fission-AI/OpenSpec) | 26,229 | Spec-driven development (SDD) |
-| [TabbyML/tabby](https://github.com/TabbyML/tabby) | 32,947 | Self-hosted AI coding assistant |
-| [coleam00/context-engineering-intro](https://github.com/coleam00/context-engineering-intro) | 12,613 | Context engineering methodology |
+- **Fragmentation** - Many competing approaches without clear winner
+- **Documentation gaps** - Most projects lack detailed implementation guides
+- **Integration complexity** - Combining multiple tools requires custom work
 
-## Priority Actions
+## Takeaways for claude-me
 
-1. **Immediate Review:** planning-with-files, context-engineering-intro
-2. **Hook System:** claude-code-hooks-mastery, Continuous-Claude-v3
-3. **Workflow Patterns:** claude-code-workflows, vibesdk
+1. **Adopt planning-with-files pattern** - Persistent markdown planning is proven at scale
+2. **Study hook systems** - disler's hooks-mastery and Continuous-Claude-v3 for context management
+3. **Reference workflow patterns** - claude-code-workflows for production-tested approaches
+4. **Consider MCP integration** - claude-code-mcp enables Claude Code as MCP server
+5. **Monitor observability tools** - multi-agent observability for debugging complex workflows

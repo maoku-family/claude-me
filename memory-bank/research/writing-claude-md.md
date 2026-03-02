@@ -1,97 +1,41 @@
 # Research: Writing a Good CLAUDE.md
 
+**Date:** 2026-02-28
+
 **Source:** [HumanLayer Blog](https://www.humanlayer.dev/blog/writing-a-good-claude-md)
-**Research Date:** February 28, 2026
 
-## Core Insight
+---
 
-> LLMs are stateless functions with frozen weights that don't learn over time. The only thing that the model knows about your codebase is the tokens you put into it.
+## Overview
 
-CLAUDE.md is the **highest-leverage configuration point** - treat it with care.
+LLMs are stateless functions with frozen weights. The only thing Claude knows about your codebase is the tokens you put into it. CLAUDE.md is the **highest-leverage configuration point**.
 
-## Three Dimensions Framework
+## Key Findings
 
-| Dimension | Description | Example |
-|-----------|-------------|---------|
-| **WHAT** | Technical stack and architecture | Apps, packages, monorepo structure |
-| **WHY** | Project purpose | What different sections accomplish |
-| **HOW** | Practical working instructions | Use `bun` not `node`, how to test |
-
-## Why Claude Ignores CLAUDE.md
-
-Claude Code injects a system reminder:
-
-> "this context may or may not be relevant to your tasks"
-
-**Implication:** Only put **universally applicable** content in CLAUDE.md. Task-specific information gets ignored.
-
-## Best Practices
-
-### 1. Minimize Instructions
-
-- Frontier LLMs reliably follow **150-200 instructions**
-- Claude Code's system prompt already contains ~50 instructions
-- Keep CLAUDE.md instructions minimal
-
-### 2. Keep It Concise
-
+- **Three Dimensions Framework:** WHAT (technical stack), WHY (project purpose), HOW (practical instructions)
+- Claude Code injects: "this context may or may not be relevant to your tasks" — only **universally applicable** content survives
+- Frontier LLMs reliably follow **150-200 instructions**; Claude Code's system prompt uses ~50
 - Target **< 100 lines** (some teams use < 60 lines)
-- Context windows perform better with focused, relevant information
+- "Prefer pointers to copies" — file references don't get outdated
+- Never use LLMs for code style enforcement — use linters and hooks
+- Avoid `/init` auto-generation; a bad line affects every workflow
 
-### 3. Progressive Disclosure
+## Strengths
 
-Instead of stuffing everything into CLAUDE.md, create separate files:
+- Clear, actionable framework (WHAT/WHY/HOW)
+- Specific limits (150-200 instructions, <100 lines)
+- Progressive disclosure pattern aligns with information architecture best practices
 
-```text
-memory-bank/
-├── building_the_project.md
-├── running_tests.md
-├── code_conventions.md
-├── service_architecture.md
-└── database_schema.md
-```
+## Weaknesses
 
-**Key principle:** "Prefer pointers to copies" - file references don't get outdated.
+- No guidance on multi-repo or monorepo scenarios
+- Doesn't address CLAUDE.md versioning or evolution over time
+- Limited discussion of rules/ vs CLAUDE.md trade-offs
 
-### 4. Claude Isn't a Linter
+## Takeaways for claude-me
 
-- Never use LLMs for code style enforcement
-- Use: Biome, ESLint, Prettier, pre-commit hooks
-
-### 5. Avoid Auto-Generation
-
-- Don't use `/init` to auto-generate CLAUDE.md
-- A bad line affects every workflow phase
-- Manual crafting is worth the effort
-
-## Recommended CLAUDE.md Structure
-
-```markdown
-# {project-name}
-
-{One-line description.}
-
-## Core Principles
-
-{3-5 guiding principles for decision-making.}
-
-## Knowledge Locations
-
-{Pointers to project knowledge files.}
-
-## Directory Structure
-
-{Tree view of key directories.}
-
-## Commands
-
-{Essential commands for build, test, run.}
-```
-
-## Key Takeaways
-
-1. **WHAT/WHY/HOW** as structuring framework
-2. **Universally applicable** content only
-3. **Prefer pointers to copies**
-4. **150-200 instruction limit** awareness
-5. **< 100 lines** target
+1. **Keep CLAUDE.md minimal** — currently ~90 lines, within target
+2. **Use memory-bank/ for details** — already doing progressive disclosure
+3. **Use rules/ for standards** — auto-loaded, keeps CLAUDE.md focused
+4. **Avoid duplicating content** — link to memory-bank/ files instead
+5. **Review periodically** — prune instructions that aren't universally applicable

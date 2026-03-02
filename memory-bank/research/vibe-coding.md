@@ -1,80 +1,42 @@
 # Research: EnzeD/vibe-coding
 
-**Repository:** [EnzeD/vibe-coding](https://github.com/EnzeD/vibe-coding)
-**Stars:** 3,978 | **Author:** Nicolas Zullo (@NicolasZu)
-**Research Date:** February 27, 2026
+**Date:** 2026-02-27
+
+**Source:** <https://github.com/EnzeD/vibe-coding>
+
+---
 
 ## Overview
 
-A comprehensive methodology guide for "vibe coding" - development where AI agents do the coding while humans focus on planning, validation, and direction.
+A methodology guide for "vibe coding" - development where AI agents do the coding while humans focus on planning, validation, and direction. Centers on a `memory-bank/` folder containing GDD/PRD, tech-stack.md, implementation-plan.md, progress.md, and architecture.md.
 
-## Core Concept: Memory Bank
+## Key Findings
 
-The centerpiece is a `memory-bank/` folder containing:
+- **Two-Phase Workflow:** Human-led planning → AI-led execution with human validation
+- **Memory Bank Pattern:** Persistent docs solve context loss across sessions
+- **Small Steps:** Each implementation step must be testable and validatable
+- **Fresh Context:** Clear chat between major steps to avoid context pollution
+- **Git as Checkpoint:** Commit after each successful step
 
-- `game-design-document.md` (or PRD for apps)
-- `tech-stack.md` - Technology choices and rationale
-- `implementation-plan.md` - Step-by-step instructions with tests
-- `progress.md` - Completed work tracking
-- `architecture.md` - File structure documentation
+## Strengths
 
-## Workflow
+- Clear separation of human planning vs AI execution
+- Memory bank solves the context window problem elegantly
+- Step-by-step approach reduces errors and enables rollback
+- Simple, no tooling required beyond Claude Code + git
 
-### Phase 1: Planning (Human-Led)
+## Weaknesses
 
-1. Create GDD/PRD
-2. Define tech stack ("simplest yet most robust")
-3. Generate Implementation Plan with small, testable steps
-4. Set up "Always" rules in CLAUDE.md
+- Manual process - no automation for prompt sequences
+- No test framework integration
+- Single-developer focus - no team workflows
+- No CI/CD integration
 
-### Phase 2: Execution (AI-Led, Human-Validated)
+## Takeaways for claude-me
 
-1. AI reads all memory-bank documents before each task
-2. Execute one step at a time
-3. Human runs tests and validates
-4. AI updates progress.md and architecture.md
-5. Commit to git, start fresh chat (clear context)
-
-## Key Principles
-
-| Principle | Description |
-|-----------|-------------|
-| **Planning is everything** | Never let AI plan autonomously |
-| **Modularity over monolith** | Enforce multiple files |
-| **Small steps with tests** | Each step must be validatable |
-| **Fresh context** | Clear chat between major steps |
-| **Document everything** | Progress and architecture files |
-
-## Prompt Patterns
-
-**First Implementation:**
-
-```text
-Read all the documents in /memory-bank, and proceed with Step 1.
-I will run the tests. Do not start Step 2 until I validate.
-Once validated, update progress.md and architecture.md.
-```
-
-**Continuation:**
-
-```text
-Read all files in memory-bank, read progress.md to understand prior work,
-and proceed with Step 2. Do not start Step 3 until I validate.
-```
-
-## Key Takeaways for claude-me
-
-1. **Memory Bank is Essential** - Solves context loss across sessions
-2. **"Always" Rules Matter** - Critical guidelines auto-loaded
-3. **Human Plans, AI Executes** - Core principle
-4. **Small Steps with Tests** - Each step validatable
-5. **Fresh Context Strategy** - Clear context between major steps
-6. **Git as Checkpoint System** - Commit after each successful step
-
-## Improvements We Can Make
-
-1. Automation layer for prompt sequences
-2. Test framework integration (Jest, Vitest)
-3. CI/CD integration
-4. Team workflows
-5. Template library for common project types
+1. **Memory Bank is Essential** - Already adopted in our architecture
+2. **"Always" Rules in CLAUDE.md** - Critical guidelines auto-loaded
+3. **Human Plans, AI Executes** - Core principle #1
+4. **Small Steps with Tests** - Aligns with TDD principle
+5. **Git Checkpoint Pattern** - Commit after each successful step
+6. **Opportunities:** Add automation layer, test framework integration, team workflows
