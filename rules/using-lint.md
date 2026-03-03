@@ -7,6 +7,8 @@
 1. A clear reason in a comment
 2. The narrowest possible scope
 
+### Shell (ShellCheck)
+
 ```bash
 # Bad
 # shellcheck disable=SC2034
@@ -16,12 +18,41 @@
 readonly MY_VAR="value"
 ```
 
+### Markdown (markdownlint)
+
 ```markdown
 <!-- Bad -->
 <!-- markdownlint-disable MD040 -->
 
 <!-- Good -->
 <!-- markdownlint-disable MD040 -- Example of bad code -->
+```
+
+### TypeScript/ESLint
+
+```typescript
+// Bad - no rule, no reason
+// eslint-disable-next-line
+
+// Bad - no reason
+// eslint-disable-next-line @typescript-eslint/naming-convention
+
+// Good - specific rule and reason
+// eslint-disable-next-line @typescript-eslint/naming-convention -- OAuth spec requires snake_case
+const access_token = response.access_token;
+```
+
+### TypeScript Type Errors
+
+Use `@ts-expect-error` (not `@ts-ignore`) with a reason:
+
+```typescript
+// Bad - silently ignores forever
+// @ts-ignore
+
+// Good - self-cleaning, will error when type is fixed
+// @ts-expect-error -- MSAL scopes is undocumented internal property
+const scopes = token.scopes;
 ```
 
 ## Pre-approved Disables
@@ -53,8 +84,3 @@ git commit --no-verify
 shfmt -w script.sh
 bun run lint:markdown  # auto-fix
 ```
-
-## Adding New Global Disables
-
-1. Document the reason in `.shellcheckrc` or `.markdownlint.json`
-2. Update memory-bank/lint.md
