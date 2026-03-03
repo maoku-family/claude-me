@@ -1,6 +1,6 @@
 ---
 name: using-lint
-description: Rules for using lint tools correctly. Use when disabling lint rules, fixing lint errors, or adding new lint configurations. Ensures proper justification for disables and correct usage patterns.
+description: Use when adding eslint-disable, shellcheck disable, or similar lint suppression comments. Also use when considering --no-verify, modifying .eslintrc/.shellcheckrc, or adding global lint rule exceptions.
 ---
 
 # Using Lint Tools
