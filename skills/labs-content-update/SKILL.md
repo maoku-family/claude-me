@@ -1,6 +1,6 @@
 ---
 name: labs-content-update
-description: Use when updating labs-content experiment configs, syncing schema changes from Studio PRs, or publishing to staging/production. Triggers on "update labs content", "sync schema from studio", "publish staging", "publish production".
+description: Use when updating labs-content experiment configs, syncing schema changes from Studio PRs, publishing to staging/production, checking progress, or listing/viewing experiments. Triggers on "update labs content", "sync schema from studio", "publish staging", "publish production", "labs 进度", "check labs progress", "resume labs update", "list experiments", "列出实验", "show experiment", "查看实验".
 ---
 
 # Labs Content Update
@@ -16,6 +16,8 @@ Workflow for updating Copilot Labs experiment configurations, syncing schema cha
 - Adding new experiments
 - Disabling/enabling experiments
 - Publishing content to staging or production
+- **Checking progress** of an in-flight update
+- **Resuming** a partially completed workflow
 
 ## First: Ask What Type of Update
 
@@ -28,6 +30,9 @@ Workflow for updating Copilot Labs experiment configurations, syncing schema cha
 | **Sync schema from Studio** | Update `config.schema.json` + `metadata.schema.json` | Read via `gh api` |
 | **Disable/Enable experiment** | Set `enabled` in `settings.json` | Content stays intact |
 | **Update covers/media** | Edit `covers` array in metadata.json | Use predictable CDN URL |
+| **Check progress / Resume** | N/A | Detect state from GitHub |
+| **List experiments** | N/A | Read settings.json + metadata |
+| **View experiment details** | N/A | Read metadata.json + landing-page.md |
 
 ## Content Pipeline
 
@@ -42,32 +47,219 @@ original/ → generated/ → dist/ → publish
 | Release | `content/dist/` | Merged configs by locale |
 | Publish | picasso-assets / studio | CDN and frontend repos |
 
+## List Experiments
+
+**When user asks:** "列出所有实验", "list experiments", "show labs"
+
+```bash
+# Read settings.json for IDs and enabled status
+cat workspace/repos/labs-content/settings.json | jq '.experiments'
+
+# Quick summary: read all metadata.json files
+for dir in workspace/repos/labs-content/content/original/*/; do
+  name=$(basename "$dir")
+  jq -r --arg alias "$name" '"\(.name) | \(.type) | \(.status)"' "$dir/metadata.json" 2>/dev/null
+done
+```
+
+### List View Format
+
+```text
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          Copilot Labs Experiments                           │
+├────┬───────────────────────────┬─────────┬───────────┬─────────┬────────────┤
+│ ID │ Alias                     │ Type    │ Status    │ Enabled │ Name       │
+├────┼───────────────────────────┼─────────┼───────────┼─────────┼────────────┤
+│  0 │ copilot-vision            │ FEATURE │ LIVE      │ ✅      │ Copilot... │
+│  1 │ copilot-gaming-experiences│ PROJECT │ LIVE      │ ✅      │ Copilot... │
+└────┴───────────────────────────┴─────────┴───────────┴─────────┴────────────┘
+
+Summary: N experiments (X enabled, Y disabled)
+         FEATURE: X | PROJECT: Y
+         LIVE: X | GRADUATED: Y | NOTSET: Z
+```
+
+## View Experiment Details
+
+**When user asks:** "查看 copilot-vision 详情", "show experiment X", "details of X"
+
+```bash
+# Read metadata.json
+cat workspace/repos/labs-content/content/original/{alias}/metadata.json | jq .
+
+# Read landing page
+cat workspace/repos/labs-content/content/original/{alias}/landing-page.md
+```
+
+### Rendering Cover Images (Detail View Only)
+
+**Only render images/videos when viewing experiment details, NOT in list view.**
+
+To show cover images in the detail view:
+
+1. Extract cover URL from metadata.json
+2. List covers with their URLs, types, sizes, and consumers
+
+### Detail View Format
+
+```text
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ {alias}                                                                     │
+├─────────────┬───────────────────────────────────────────────────────────────┤
+│ ID          │ {id}                                                          │
+│ Enabled     │ ✅/❌                                                          │
+│ Name        │ {name}                                                        │
+│ Type        │ FEATURE/PROJECT                                               │
+│ Status      │ LIVE/GRADUATED/NOTSET/...                                     │
+│ Order       │ {order}                                                       │
+│ isMaster    │ true/false                                                    │
+└─────────────┴───────────────────────────────────────────────────────────────┘
+
+Description:
+┌───────┬─────────────────────────────────────────────────────────────────────┐
+│ Title │ {title}                                                             │
+│ Short │ {short description}                                                 │
+│ Long  │ {filename} (see Landing Page below)                                 │
+└───────┴─────────────────────────────────────────────────────────────────────┘
+
+Covers:
+┌───────┬───────────┬──────────────┬──────────────────────────────────────────┐
+│ Type  │ Size      │ Consumers    │ URL                                      │
+├───────┼───────────┼──────────────┼──────────────────────────────────────────┤
+│ IMAGE │ 643×360   │ HOMEPAGE     │ https://...                              │
+│ VIDEO │ 1920×930  │ LANDING_PAGE │ https://...                              │
+└───────┴───────────┴──────────────┴──────────────────────────────────────────┘
+
+Links:
+┌──────────────┬────────────────┬───────────────────────┬────────┐
+│ Type         │ Trigger        │ Target                │ Scopes │
+├──────────────┼────────────────┼───────────────────────┼────────┤
+│ PROJECT_LINK │ TRY_NOW_BUTTON │ /labs/{alias}         │ ALL    │
+└──────────────┴────────────────┴───────────────────────┴────────┘
+
+Files:
+content/original/{alias}/
+├── metadata.json
+└── landing-page.md
+
+Landing Page:
+{content of landing-page.md in markdown code block}
+```
+
+## Check Progress / Resume Workflow
+
+**When user asks:** "进度如何", "继续", "check progress", "resume"
+
+Run these commands to detect current state:
+
+```bash
+# 1. Check for open labs-content PRs
+gh pr list --repo infinity-microsoft/labs-content --state open --json number,title,headRefName,url
+
+# 2. Check for recent merged PRs (last 7 days)
+gh pr list --repo infinity-microsoft/labs-content --state merged --search "merged:>$(date -v-7d +%Y-%m-%d)" --json number,title,mergedAt,url
+
+# 3. Check release branches
+git fetch origin && git branch -r | grep release | tail -3
+
+# 4. Check recent workflow runs
+gh run list --repo infinity-microsoft/labs-content --limit 5 --json databaseId,name,status,conclusion,headBranch,createdAt
+
+# 5. Check picasso-assets PRs and their changed files
+gh pr list --repo infinity-microsoft/picasso-assets --state all --search "labs" --limit 5 --json number,title,state,mergedAt,url,files
+
+# 6. Check studio open PRs (from labs-content)
+gh pr list --repo infinity-microsoft/studio --state open --search "labs" --json number,title,url
+```
+
+### Distinguish Staging vs Production PRs
+
+For picasso-assets PRs, check the `files` field:
+
+| Changed File | PR Type |
+|--------------|---------|
+| `staging.config.json` | Staging (Step 12) |
+| `prod.config.json` | Production (Step 17) |
+
+If `--json files` is not supported, use per-PR query:
+
+```bash
+# Get files changed in a specific PR
+gh pr view <pr-number> --repo infinity-microsoft/picasso-assets --json files --jq '.files[].path'
+```
+
+### State Detection Matrix
+
+| Detected State | Current Step | Next Action |
+|----------------|--------------|-------------|
+| Open PR in labs-content | 7 | Wait for merge, or remind user to review |
+| PR merged, no release branch newer than merge | 9 | Wait for Release workflow |
+| Release branch exists, no staging workflow run | 10 | Trigger Publish: Staging |
+| Staging workflow running | 10 | Wait for workflow to complete |
+| Staging workflow completed, no staging PR in picasso | 11 | Check workflow logs for error |
+| Open PR in picasso-assets (staging) | 12 | Wait for merge or auto-merge |
+| Staging PR merged, no production workflow | 14 | Ask user to verify staging, then trigger production |
+| Production workflow running | 15 | Wait for workflow to complete |
+| Production workflow completed (picasso PR + studio PR created) | 16 | Check both PRs |
+| Open PR in picasso-assets (production), studio PR open | 17 | Wait for picasso PR merge |
+| picasso PR (production) merged, studio PR open | 18-19 | User verify, remind to merge studio PR |
+| picasso PR merged, studio PR merged | Done | ✅ Complete |
+
+### Progress Report Format
+
+After detecting state, report to user:
+
+```text
+## Labs Content Update Progress
+
+**Operation:** [Add/Modify/Schema Sync] - [experiment name or description]
+**Started:** [date from first PR or branch]
+
+### Current Status
+- Step [N]/19: [Step description]
+- Status: [Waiting/In Progress/Blocked/Ready]
+
+### Pending Items
+| Item | Status | Action Needed |
+|------|--------|---------------|
+| labs-content PR #123 | Merged ✅ | - |
+| Release workflow | Completed ✅ | - |
+| Publish: Staging workflow | Completed ✅ | - |
+| picasso-assets PR (staging) | Merged ✅ | - |
+| Publish: Production workflow | Completed ✅ | - |
+| picasso-assets PR (production) | Merged ✅ | 线上已生效 |
+| studio PR | Open ⏳ | 可异步 merge |
+
+### Next Step
+[Describe what to do next]
+```
+
 ## Complete Workflow
 
-| Step | Action |
-|------|--------|
-| 0 | Check if Studio schema needs sync |
-| 1 | Collect info: what to update, new values |
-| 2 | Sync schema if needed |
-| 3 | Edit files based on user input |
-| 4 | Run `npm run test:integration` |
-| 5 | Update baselines if needed |
-| 6 | Create branch, commit, push, create PR |
-| 7 | Tell user PR URL, remind to merge |
-| 8 | Watch PR until merged (poll every 1 hour, auto-merge if approved) |
-| 9 | Watch Release workflow until complete |
-| **Staging** | |
-| 10 | Trigger Publish: Staging |
-| 11 | Watch Staging workflow, tell user picasso-assets PR URL |
-| 12 | Watch picasso-assets PR until merged |
-| 13 | Tell user to verify at <https://www.copilot-stg.com/labs> |
-| 14 | Ask: "Staging verified. Publish to Production?" |
-| **Production** | |
-| 15 | Trigger Publish: Production |
-| 16 | Watch Production workflow, tell user picasso-assets PR URL |
-| 17 | Watch picasso-assets PR until merged |
-| 18 | Tell user to verify at <https://www.copilot.microsoft.com/labs> |
-| 19 | Remind user to merge studio PR (i18n + fallback) |
+| Step | Action | State Indicator |
+|------|--------|-----------------|
+| 0 | Check if Studio schema needs sync | - |
+| 1 | Collect info: what to update, new values | - |
+| 2 | Sync schema if needed | Local files changed |
+| 3 | Edit files based on user input | Local files changed |
+| 4 | Run `npm run test:integration` | Tests pass |
+| 5 | Update baselines if needed | Tests pass |
+| 6 | Create branch, commit, push, create PR | PR open in labs-content |
+| 7 | Tell user PR URL, remind to merge | PR open |
+| 8 | Watch PR until merged (poll every 1 hour, auto-merge if approved) | PR merged |
+| 9 | Watch Release workflow until complete | Release branch exists |
+| **Staging** | | |
+| 10 | Trigger Publish: Staging | Staging workflow running |
+| 11 | Watch Staging workflow, tell user picasso-assets PR URL | Staging workflow done |
+| 12 | Watch picasso-assets PR until merged | picasso PR merged |
+| 13 | Tell user to verify at <https://www.copilot-stg.com/labs> | User confirms |
+| 14 | Ask: "Staging verified. Publish to Production?" | User confirms |
+| **Production** | | |
+| 15 | Trigger Publish: Production | Production workflow running |
+| 16 | Watch Production workflow (creates BOTH picasso PR + studio PR) | Production workflow done |
+| 17 | Watch picasso-assets PR (production) until merged | picasso PR merged → **线上生效** |
+| 18 | Tell user to verify at <https://www.copilot.microsoft.com/labs> | User confirms |
+| 19 | Remind user to merge studio PR (i18n + fallback, 可异步) | studio PR merged |
 
 ### Watch PR / Workflow Commands
 
