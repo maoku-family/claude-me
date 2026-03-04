@@ -16,8 +16,8 @@ Workflow for updating Copilot Labs experiment configurations, syncing schema cha
 - Adding new experiments
 - Disabling/enabling experiments
 - Publishing content to staging or production
-- **Checking progress** of an in-flight update
-- **Resuming** a partially completed workflow
+- **Check progress** of an in-flight update and resume from current step
+- **List experiments** or **view experiment details**
 
 ## First: Ask What Type of Update
 
@@ -27,6 +27,7 @@ Workflow for updating Copilot Labs experiment configurations, syncing schema cha
 |-----------|-----------------|---------------|
 | **Add new experiment** | Create `content/original/{name}/` with metadata.json + landing-page.md, update `settings.json` | Allocate new ID |
 | **Modify experiment** | Edit `content/original/{name}/metadata.json` or `landing-page.md` | None |
+| **Graduate experiment** | Set `status: "GRADUATED"` in metadata.json | Experiment graduates from Labs |
 | **Sync schema from Studio** | Update `config.schema.json` + `metadata.schema.json` | Read via `gh api` |
 | **Disable/Enable experiment** | Set `enabled` in `settings.json` | Content stays intact |
 | **Update covers/media** | Edit `covers` array in metadata.json | Use predictable CDN URL |
@@ -47,9 +48,48 @@ original/ → generated/ → dist/ → publish
 | Release | `content/dist/` | Merged configs by locale |
 | Publish | picasso-assets / studio | CDN and frontend repos |
 
-## List Experiments
+## Complete Workflow
 
-**When user asks:** "list experiments", "show labs", "list all experiments"
+| Step | Action | State Indicator |
+|------|--------|-----------------|
+| 0 | Check if Studio schema needs sync | - |
+| 1 | Collect info: what to update, new values | - |
+| 2 | Sync schema if needed | Local files changed |
+| 3 | Edit files based on user input | Local files changed |
+| 4 | Run `npm run test:integration` | Tests pass |
+| 5 | Update baselines if needed | Tests pass |
+| 6 | Create branch, commit, push, create PR | PR open in labs-content |
+| 7 | Tell user PR URL, remind to merge | PR open |
+| 8 | Watch PR until merged (poll every 1 hour, auto-merge if approved) | PR merged |
+| 9 | Watch Release workflow until complete | Release branch exists |
+| **Staging** | | |
+| 10 | Trigger Publish: Staging | Staging workflow running |
+| 11 | Watch Staging workflow, tell user picasso-assets PR URL | Staging workflow done |
+| 12 | Watch picasso-assets PR until merged | picasso PR merged |
+| 13 | Tell user to verify at <https://www.copilot-stg.com/labs> | User confirms |
+| 14 | Ask: "Staging verified. Publish to Production?" | User confirms |
+| **Production** | | |
+| 15 | Trigger Publish: Production | Production workflow running |
+| 16 | Watch Production workflow (creates BOTH picasso PR + studio PR) | Production workflow done |
+| 17 | Watch picasso-assets PR (production) until merged | picasso PR merged -> **Live** |
+| 18 | Tell user to verify at <https://www.copilot.microsoft.com/labs> | User confirms |
+| 19 | Remind user to merge studio PR (i18n + fallback, can be async) | studio PR merged |
+
+### Watch PR / Workflow Commands
+
+```bash
+# Check PR state and auto-merge if ready
+gh pr view <pr-number> --repo <repo> --json state,mergedAt,reviewDecision,mergeable
+gh pr merge <pr-number> --repo <repo> --merge  # If approved + mergeable
+
+# Watch workflow until complete
+gh run list --repo <repo> --workflow "<workflow-name>" --limit 1 --json databaseId --jq '.[0].databaseId'
+gh run watch <run-id> --repo <repo>
+```
+
+## Operations Reference
+
+### List Experiments
 
 ```bash
 # Read settings.json for IDs and enabled status
@@ -62,7 +102,7 @@ for dir in workspace/repos/labs-content/content/original/*/; do
 done
 ```
 
-### List View Format
+#### List View Format
 
 ```text
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -79,9 +119,7 @@ Summary: N experiments (X enabled, Y disabled)
          LIVE: X | GRADUATED: Y | NOTSET: Z
 ```
 
-## View Experiment Details
-
-**When user asks:** "show experiment X", "details of X", "view X experiment"
+### View Experiment Details
 
 ```bash
 # Read metadata.json
@@ -91,16 +129,7 @@ cat workspace/repos/labs-content/content/original/{alias}/metadata.json | jq .
 cat workspace/repos/labs-content/content/original/{alias}/landing-page.md
 ```
 
-### Rendering Cover Images (Detail View Only)
-
-**Only render images/videos when viewing experiment details, NOT in list view.**
-
-To show cover images in the detail view:
-
-1. Extract cover URL from metadata.json
-2. List covers with their URLs, types, sizes, and consumers
-
-### Detail View Format
+#### Detail View Format
 
 ```text
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -146,13 +175,11 @@ Landing Page:
 {content of landing-page.md in markdown code block}
 ```
 
-## Check Progress / Resume Workflow
-
-**When user asks:** "check progress", "resume", "status", "what's pending"
+### Check Progress / Resume Workflow
 
 **CRITICAL: Track ALL in-flight updates, not just the latest one.**
 
-### Step 1: Collect All Recent Release Branches
+#### Step 1: Collect All Recent Release Branches
 
 ```bash
 # Get all release branches from the last 30 days
@@ -160,7 +187,7 @@ git fetch origin
 git branch -r | grep release | tail -10
 ```
 
-### Step 2: For Each Release Branch, Build Complete Tracking Chain
+#### Step 2: For Each Release Branch, Build Complete Tracking Chain
 
 Each release branch represents one update. Track its full pipeline:
 
@@ -183,7 +210,7 @@ gh pr list --repo infinity-microsoft/studio --state all --search "labs markdown"
   --json number,title,state,mergedAt,createdAt
 ```
 
-### Step 3: Correlate PRs to Release Branches by Timestamp
+#### Step 3: Correlate PRs to Release Branches by Timestamp
 
 | Release Branch | Staging PR | Production PR | Studio PR |
 |----------------|------------|---------------|-----------|
@@ -196,7 +223,7 @@ gh pr list --repo infinity-microsoft/studio --state all --search "labs markdown"
 2. Staging workflow triggered -> picasso staging PR
 3. After staging merged -> Production workflow triggered -> picasso prod PR + studio PR
 
-### Step 4: Determine Status for Each Update
+#### Step 4: Determine Status for Each Update
 
 For each release branch, check:
 
@@ -208,82 +235,159 @@ For each release branch, check:
 | Production PR merged? | `gh pr view --json state` | Open/Merged -> **Live** |
 | Studio PR merged? | `gh pr view --json state` | Open/Merged |
 
-### Progress Report Format (Multiple Updates)
+#### Progress Report Format
 
 ```text
-## Labs Content Update Progress
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                       Labs Content Update Progress                          │
+└─────────────────────────────────────────────────────────────────────────────┘
 
-### Update 1: [Description from PR title]
-**Release:** release/2026-02-26-091642
-**Status:** ✅ Complete
+Update 1: [Description from PR title]
+Release: release/2026-02-26-091642
+Status: ✅ Complete
 
-| Stage | PR | Status |
-|-------|-----|--------|
-| labs-content | #39 | ✅ Merged |
-| picasso staging | #141 | ✅ Merged |
-| picasso production | #143 | ✅ Merged -> **Live** |
-| studio | #23000 | ✅ Merged |
-
----
-
-### Update 2: [Description from PR title]
-**Release:** release/2026-03-02-155350
-**Status:** ⏳ In Progress (Step 17/19)
-
-| Stage | PR | Status |
-|-------|-----|--------|
-| labs-content | #40 | ✅ Merged |
-| picasso staging | #147 | ✅ Merged |
-| picasso production | #156 | ⏳ Open |
-| studio | #23024 | ⏳ Open |
-
-**Next:** Merge picasso PR #156 -> goes live immediately
+┌──────────────────────┬────────┬──────────────────┐
+│ Stage                │ PR     │ Status           │
+├──────────────────────┼────────┼──────────────────┤
+│ labs-content         │ #39    │ ✅ Merged        │
+│ picasso (staging)    │ #141   │ ✅ Merged        │
+│ picasso (production) │ #143   │ ✅ Merged -> Live│
+│ studio               │ #23000 │ ✅ Merged        │
+└──────────────────────┴────────┴──────────────────┘
 
 ---
 
-### Summary
-- 1 update complete
-- 1 update pending (waiting for PR merge)
+Update 2: [Description from PR title]
+Release: release/2026-03-02-155350
+Status: ⏳ In Progress (Step 17/19)
+
+┌──────────────────────┬────────┬──────────────────┐
+│ Stage                │ PR     │ Status           │
+├──────────────────────┼────────┼──────────────────┤
+│ labs-content         │ #40    │ ✅ Merged        │
+│ picasso (staging)    │ #147   │ ✅ Merged        │
+│ picasso (production) │ #156   │ ⏳ Open          │
+│ studio               │ #23024 │ ⏳ Open          │
+└──────────────────────┴────────┴──────────────────┘
+
+Next: Merge picasso PR #156 -> goes live immediately
+
+---
+
+Summary: 1 complete, 1 pending
 ```
 
-## Complete Workflow
+### Add New Experiment
 
-| Step | Action | State Indicator |
-|------|--------|-----------------|
-| 0 | Check if Studio schema needs sync | - |
-| 1 | Collect info: what to update, new values | - |
-| 2 | Sync schema if needed | Local files changed |
-| 3 | Edit files based on user input | Local files changed |
-| 4 | Run `npm run test:integration` | Tests pass |
-| 5 | Update baselines if needed | Tests pass |
-| 6 | Create branch, commit, push, create PR | PR open in labs-content |
-| 7 | Tell user PR URL, remind to merge | PR open |
-| 8 | Watch PR until merged (poll every 1 hour, auto-merge if approved) | PR merged |
-| 9 | Watch Release workflow until complete | Release branch exists |
-| **Staging** | | |
-| 10 | Trigger Publish: Staging | Staging workflow running |
-| 11 | Watch Staging workflow, tell user picasso-assets PR URL | Staging workflow done |
-| 12 | Watch picasso-assets PR until merged | picasso PR merged |
-| 13 | Tell user to verify at <https://www.copilot-stg.com/labs> | User confirms |
-| 14 | Ask: "Staging verified. Publish to Production?" | User confirms |
-| **Production** | | |
-| 15 | Trigger Publish: Production | Production workflow running |
-| 16 | Watch Production workflow (creates BOTH picasso PR + studio PR) | Production workflow done |
-| 17 | Watch picasso-assets PR (production) until merged | picasso PR merged -> **Live** |
-| 18 | Tell user to verify at <https://www.copilot.microsoft.com/labs> | User confirms |
-| 19 | Remind user to merge studio PR (i18n + fallback, can be async) | studio PR merged |
+**Ask user for:**
 
-### Watch PR / Workflow Commands
+1. Experiment name (e.g., "Copilot Vision")
+2. Alias (URL slug, e.g., "copilot-vision")
+3. Type: FEATURE or PROJECT
+4. Status: UPCOMING, LIVE, GRADUATED, etc.
+5. Short description (1-2 sentences)
+6. Landing page content (can be placeholder)
+7. Cover image URL
+8. Try Now button URL
+
+**Then:**
+
+1. Create `content/original/{alias}/metadata.json` and `landing-page.md`
+2. Register in `settings.json` with new ID (highest + 1), `enabled: true`
+3. Run tests and update baselines
+
+#### metadata.json Template
+
+```json
+{
+  "name": "Experiment Display Name",
+  "alias": "experiment-alias",
+  "type": "FEATURE",
+  "status": "UPCOMING",
+  "assets": {
+    "descriptions": {
+      "title": { "stringValue": "Display Name", "i18nKey": "labs.experimentsAssets.experimentAlias.title" },
+      "short": { "stringValue": "Brief description.", "i18nKey": "labs.experimentsAssets.experimentAlias.shortDescription" },
+      "long": { "filename": "labs-exp-experiment-alias" }
+    },
+    "covers": [{ "type": "IMAGE", "url": "https://copilot.microsoft.com/static/copilotlabs/cover.jpg", "consumers": ["HOMEPAGE"] }],
+    "links": [{ "type": "EXTERNAL_LINK", "trigger": "TRY_NOW_BUTTON", "url": "https://example.com", "stringValue": "Try now", "i18nKey": "labs.experimentsAssets.experimentAlias.tryNowButton" }],
+    "layouts": { "order": 10 }
+  }
+}
+```
+
+| Field | Values |
+|-------|--------|
+| `type` | `FEATURE`, `PROJECT` |
+| `status` | `NOTSET`, `REGISTERED`, `UPCOMING`, `LIVE`, `GRADUATED`, `SUNSETTED` |
+
+### Modify Experiment
+
+| Change | File |
+|--------|------|
+| Title, description, links, status | `metadata.json` |
+| Landing page content | `landing-page.md` |
+
+### Graduate Experiment
+
+Set `status: "GRADUATED"` in `metadata.json`. The experiment will be marked as graduated from Labs.
+
+### Disable/Enable Experiment
+
+Edit `settings.json`: set `"enabled": false` (or `true`). Content stays intact, just excluded from dist.
+
+### Update Covers/Media
+
+Place media in `content/original/{exp}/`, update `covers` array with predictable CDN URL:
+
+```text
+https://copilot.microsoft.com/static/copilotlabs/{filename}
+```
+
+Use `--sync-media` flag with Publish: Staging to sync media files.
+
+| Type | Fields | Consumers |
+|------|--------|-----------|
+| IMAGE | `type`, `url`, `consumers` | HOMEPAGE, LANDING_PAGE |
+| VIDEO | `type`, `url`, `width`, `height`, `consumers` | HOMEPAGE, LANDING_PAGE |
+
+Supported: .png, .jpg, .jpeg, .gif, .webp, .svg, .mp4, .webm, .mov
+
+### Schema Sync from Studio
 
 ```bash
-# Check PR state and auto-merge if ready
-gh pr view <pr-number> --repo <repo> --json state,mergedAt,reviewDecision,mergeable
-gh pr merge <pr-number> --repo <repo> --merge  # If approved + mergeable
-
-# Watch workflow until complete
-gh run list --repo <repo> --workflow "<workflow-name>" --limit 1 --json databaseId --jq '.[0].databaseId'
-gh run watch <run-id> --repo <repo>
+# Read schema file directly
+gh api repos/infinity-microsoft/studio/contents/src/schemas/labs-schemas.ts \
+  --jq '.content' | base64 -d
 ```
+
+**Zod to JSON Schema mapping:**
+
+- `z.enum([...])` → `"enum": [...]`
+- `z.literal("X")` → `"const": "X"`
+- `z.union([A, B])` → `"oneOf": [{...}, {...}]`
+- `z.object({...}).extend({...})` → `"allOf": [{...}, {...}]`
+
+Update both `config.schema.json` and `metadata.schema.json`, then update affected experiments.
+
+### Publishing
+
+*_CRITICAL: Use release/_ branch, NOT main**
+
+```bash
+# Find latest release branch
+git fetch origin && git branch -r | grep release | tail -1
+
+# Trigger workflows
+gh workflow run "Publish: Staging" --repo infinity-microsoft/labs-content --ref release/YYYY-MM-DD-HHMMSS
+gh workflow run "Publish: Production" --repo infinity-microsoft/labs-content --ref release/YYYY-MM-DD-HHMMSS
+```
+
+| Environment | Publishes To |
+|-------------|--------------|
+| Staging | picasso-assets (`staging.config.json` + media with `--sync-media`) |
+| Production | picasso-assets (`prod.config.json`) + studio (markdown, strings, fallback) |
 
 ## Repositories and Workflows
 
@@ -314,116 +418,6 @@ npm run test:integration                    # Run tests
 npm run test:update-integration-baselines   # Update baselines
 ```
 
-## Schema Sync from Studio
-
-```bash
-# Read schema file directly
-gh api repos/infinity-microsoft/studio/contents/src/schemas/labs-schemas.ts \
-  --jq '.content' | base64 -d
-```
-
-**Zod to JSON Schema mapping:**
-
-- `z.enum([...])` → `"enum": [...]`
-- `z.literal("X")` → `"const": "X"`
-- `z.union([A, B])` → `"oneOf": [{...}, {...}]`
-- `z.object({...}).extend({...})` → `"allOf": [{...}, {...}]`
-
-Update both `config.schema.json` and `metadata.schema.json`, then update affected experiments.
-
-## Add New Experiment
-
-**Ask user for:**
-
-1. Experiment name (e.g., "Copilot Vision")
-2. Alias (URL slug, e.g., "copilot-vision")
-3. Type: FEATURE or PROJECT
-4. Status: UPCOMING, LIVE, GRADUATED, etc.
-5. Short description (1-2 sentences)
-6. Landing page content (can be placeholder)
-7. Cover image URL
-8. Try Now button URL
-
-**Then:**
-
-1. Create `content/original/{alias}/metadata.json` and `landing-page.md`
-2. Register in `settings.json` with new ID (highest + 1), `enabled: true`
-3. Run tests and update baselines
-
-### metadata.json Template
-
-```json
-{
-  "name": "Experiment Display Name",
-  "alias": "experiment-alias",
-  "type": "FEATURE",
-  "status": "UPCOMING",
-  "assets": {
-    "descriptions": {
-      "title": { "stringValue": "Display Name", "i18nKey": "labs.experimentsAssets.experimentAlias.title" },
-      "short": { "stringValue": "Brief description.", "i18nKey": "labs.experimentsAssets.experimentAlias.shortDescription" },
-      "long": { "filename": "labs-exp-experiment-alias" }
-    },
-    "covers": [{ "type": "IMAGE", "url": "https://copilot.microsoft.com/static/copilotlabs/cover.jpg", "consumers": ["HOMEPAGE"] }],
-    "links": [{ "type": "EXTERNAL_LINK", "trigger": "TRY_NOW_BUTTON", "url": "https://example.com", "stringValue": "Try now", "i18nKey": "labs.experimentsAssets.experimentAlias.tryNowButton" }],
-    "layouts": { "order": 10 }
-  }
-}
-```
-
-| Field | Values |
-|-------|--------|
-| `type` | `FEATURE`, `PROJECT` |
-| `status` | `NOTSET`, `REGISTERED`, `UPCOMING`, `LIVE`, `GRADUATED`, `SUNSETTED` |
-
-## Disable/Enable Experiment
-
-Edit `settings.json`: set `"enabled": false` (or `true`). Content stays intact, just excluded from dist.
-
-## Modify Experiment
-
-**Ask:** Which experiment? What to modify?
-
-| Change | File |
-|--------|------|
-| Title, description, links, status | `metadata.json` |
-| Landing page content | `landing-page.md` |
-
-## Update Covers/Media
-
-Place media in `content/original/{exp}/`, update `covers` array with predictable CDN URL:
-
-```text
-https://copilot.microsoft.com/static/copilotlabs/{filename}
-```
-
-Use `--sync-media` flag with Publish: Staging to sync media files.
-
-| Type | Fields | Consumers |
-|------|--------|-----------|
-| IMAGE | `type`, `url`, `consumers` | HOMEPAGE, LANDING_PAGE |
-| VIDEO | `type`, `url`, `width`, `height`, `consumers` | HOMEPAGE, LANDING_PAGE |
-
-Supported: .png, .jpg, .jpeg, .gif, .webp, .svg, .mp4, .webm, .mov
-
-## Publishing
-
-*_CRITICAL: Use release/_ branch, NOT main**
-
-```bash
-# Find latest release branch
-git fetch origin && git branch -r | grep release | tail -1
-
-# Trigger workflows
-gh workflow run "Publish: Staging" --repo infinity-microsoft/labs-content --ref release/YYYY-MM-DD-HHMMSS
-gh workflow run "Publish: Production" --repo infinity-microsoft/labs-content --ref release/YYYY-MM-DD-HHMMSS
-```
-
-| Environment | Publishes To |
-|-------------|--------------|
-| Staging | picasso-assets (`staging.config.json` + media with `--sync-media`) |
-| Production | picasso-assets (`prod.config.json`) + studio (markdown, strings, fallback) |
-
 ## Common Mistakes
 
 | Mistake | Fix |
@@ -448,13 +442,28 @@ gh workflow run "Publish: Staging" --repo infinity-microsoft/labs-content --ref 
 
 ## Checklist
 
-- [ ] Create feature branch (not direct to main)
-- [ ] Update schema files (if schema change)
-- [ ] Update experiment metadata
+### Local Development
+
+- [ ] Create feature branch
+- [ ] Update files (metadata.json, landing-page.md, schema if needed)
 - [ ] Run `npm run test:integration`
 - [ ] Update baselines if needed
+
+### PR & Release
+
 - [ ] Commit and create PR
-- [ ] After merge, find release branch
-- [ ] Trigger Publish: Staging on release branch
-- [ ] Verify staging
-- [ ] Trigger Publish: Production on release branch
+- [ ] Wait for PR merge
+- [ ] Find release branch
+
+### Staging
+
+- [ ] Trigger Publish: Staging
+- [ ] Wait for picasso PR merge
+- [ ] Verify at <https://www.copilot-stg.com/labs>
+
+### Production
+
+- [ ] Trigger Publish: Production
+- [ ] Wait for picasso PR merge -> Live
+- [ ] Verify at <https://www.copilot.microsoft.com/labs>
+- [ ] Merge studio PR (can be async)
