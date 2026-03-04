@@ -58,7 +58,6 @@ Located in `rules/`, coding standards auto-loaded every session:
 Located in `scripts/`:
 
 - **install.sh** - Creates symlinks and sets up the plugin
-- **setup-workspace.sh** - Sets up workspace directories
 - **hooks/** - Hook implementation scripts
 - **lint/** - Lint helper scripts (check-lint-disables.sh)
 
