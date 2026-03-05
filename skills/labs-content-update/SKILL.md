@@ -83,29 +83,29 @@ gh api repos/infinity-microsoft/labs-content/branches --paginate \
 
 ## Complete Workflow
 
-| Step | Action | Type |
-|------|--------|------|
-| 0 | **MUST** Check if Studio schema needs sync | Mandatory |
-| 1 | Collect info: what to update, new values | - |
-| 2 | Sync schema if needed | - |
-| 3 | Edit files based on user input | - |
-| 4 | **MUST** Run `npm run test:integration` | Mandatory |
-| 5 | Update baselines if needed | - |
-| 6 | Create branch, commit, push, create PR | - |
-| 7 | Tell user PR URL, remind to merge ASAP | - |
-| 8 | **MUST** Watch Release workflow | Watch |
-| **Staging** | | |
-| 9 | **MUST** Trigger + Watch Publish: Staging | Watch |
-| 10 | Tell user picasso-assets staging PR URL | - |
-| 11 | **ASK** user: "picasso staging PR merged?" | Poll |
-| 12 | Tell user to verify at <https://www.copilot-stg.com/labs> | - |
-| 13 | Ask: "Staging verified. Publish to Production?" | - |
-| **Production** | | |
-| 14 | **MUST** Trigger + Watch Publish: Production | Watch |
-| 15 | Tell user picasso-assets + studio PR URLs | - |
-| 16 | **ASK** user: "picasso production PR merged?" | Poll |
-| 17 | Tell user to verify at <https://www.copilot.microsoft.com/labs> | - |
-| 18 | **ASK** user: "studio PR merged?" | Poll |
+| Step | Action | Type | State Indicator |
+|------|--------|------|-----------------|
+| 0 | **MUST** Check if Studio schema needs sync | Mandatory | - |
+| 1 | Collect info: what to update, new values | - | - |
+| 2 | Sync schema if needed | - | Local files changed |
+| 3 | Edit files based on user input | - | Local files changed |
+| 4 | **MUST** Run `npm run test:integration` | Mandatory | Tests pass |
+| 5 | Update baselines if needed | - | Tests pass |
+| 6 | Create branch, commit, push, create PR | - | PR open in labs-content |
+| 7 | Tell user PR URL, remind to merge ASAP | - | PR open |
+| 8 | **MUST** Watch Release workflow | Watch | Release branch exists |
+| **Staging** | | | |
+| 9 | **MUST** Trigger + Watch Publish: Staging | Watch | Staging workflow done |
+| 10 | Tell user picasso-assets staging PR URL | - | picasso staging PR open |
+| 11 | **ASK** user: "picasso staging PR merged?" | Poll | picasso staging PR merged |
+| 12 | Tell user to verify at <https://www.copilot-stg.com/labs> | - | User confirms |
+| 13 | Ask: "Staging verified. Publish to Production?" | - | User confirms |
+| **Production** | | | |
+| 14 | **MUST** Trigger + Watch Publish: Production | Watch | Production workflow done |
+| 15 | Tell user picasso-assets + studio PR URLs | - | picasso + studio PR open |
+| 16 | **ASK** user: "picasso production PR merged?" | Poll | picasso PR merged -> **Live** |
+| 17 | Tell user to verify at <https://www.copilot.microsoft.com/labs> | - | User confirms |
+| 18 | **ASK** user: "studio PR merged?" | Poll | studio PR merged |
 
 ### Watch Commands (Mandatory - blocks until complete)
 
