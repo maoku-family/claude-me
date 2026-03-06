@@ -4,6 +4,16 @@
 
 claude-me is a personal AI digital worker / AI clone powered by Claude Code. It provides a structured environment for AI-assisted development with custom hooks, skills, agents, and rules.
 
+## Development Workflow
+
+All feature development follows a mandatory 6-stage workflow:
+
+```text
+BRAINSTORM → WORKTREE → PLAN → EXECUTE → REVIEW → FINISH
+```
+
+See [workflow.md](workflow.md) for detailed workflow documentation.
+
 ## Core Principles
 
 1. **Human Plans, AI Executes** - You plan, I execute
@@ -91,5 +101,6 @@ Child projects are git submodules. Their knowledge files live in `workspace/memo
 
 | Document | Content |
 |----------|---------|
+| [workflow.md](workflow.md) | Development workflow |
 | [stack.md](stack.md) | Technology stack overview |
 | [lint.md](lint.md) | Detailed linting configuration |
