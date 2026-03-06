@@ -26,12 +26,12 @@ BRAINSTORM → PLAN → EXECUTE → FINISH
 ### Autonomous Mode (ralph-loop)
 
 ```text
-/ralph-loop "Execute the plan at {path}/plan.md using subagent-driven-development skill. Follow TDD for each task. When ALL tasks complete, output: <promise>ALL_TASKS_COMPLETE</promise>" --max-iterations 50 --completion-promise "ALL_TASKS_COMPLETE"
+/ralph-loop "Execute the plan using superpowers:executing-plans skill. When ALL tasks complete, output: <promise>ALL_TASKS_COMPLETE</promise>" --max-iterations 50 --completion-promise "ALL_TASKS_COMPLETE"
 ```
 
 **What it does:**
 
-- Runs superpowers:subagent-driven-development inside the loop
+- Runs superpowers:executing-plans inside the loop
 - Auto-retries on failures
 - Exits when all tasks complete
 
